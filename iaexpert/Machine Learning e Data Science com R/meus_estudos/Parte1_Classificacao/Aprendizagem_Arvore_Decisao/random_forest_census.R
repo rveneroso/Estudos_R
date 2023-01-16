@@ -28,16 +28,10 @@ divisao = sample.split(base$income, SplitRatio = 0.85)
 base_treinamento = subset(base, divisao == TRUE)
 base_teste = subset(base, divisao == FALSE)
 
-library(rpart)
-poda = classificador$cptable[which.min(classificador$cptable[, "xerror"]), "CP"]
-# Realiza a poda na árvore de decisão com base no valor da variável poda
-prune(classificador,poda)
+# ZeroR - base line classifier (linha base)
+table(base_teste$income)
 
-library(rpart.plot)
-classificador = rpart(formula = income ~., data = base_treinamento)
-rpart.plot(classificador)
-previsoes = predict(classificador, newdata = base_teste[-15], type = 'class')
-matriz_confusao = table(base_teste[, 15], previsoes)
-
-library(caret)
-confusionMatrix(matriz_confusao)
+library(randomForest)
+set.seed(1)
+classificador = randomForest(x = base_treinamento[-15], y = base_treinamento$income, ntree = 10)
+previsoes = predict(classificador)
