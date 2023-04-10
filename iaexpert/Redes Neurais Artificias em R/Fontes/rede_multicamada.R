@@ -86,4 +86,11 @@ for (j in 1:epocas) {
   # A variável camadaSaida conterá o resultado da aplicação da função sigmoide sobre cada um dos valores presentes
   # na variável somaSinapses1. Assim como a matriz somaSinapses1, ela é uma matriz de 4 linhas e 1 coluna.
   camadaSaida <- sigmoid(somaSinapses1)
+  
+  # Calcula o erro. Com o R, a subtração de matrizes pode ser feita com uma única operação. Assim, basta subtrair
+  # a matriz de saídas (resultado conhecido) da matriz de saídas calculadas pela rede neural.
+  erroCamadaSaida <- saidas - camadaSaida
+  
+  # Obtém o valor do erro médio desconsiderando-se valores negativos.
+  mediaAbsoluta <- mean(abs(erroCamadaSaida))
 }
