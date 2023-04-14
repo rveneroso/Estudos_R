@@ -4,6 +4,11 @@ sigmoid  <- function(soma) {
   return(1 / (1 + exp(-soma)))
 }
 
+# Calcula a derivada do valor de retorno da função sigmoide
+sigmoidDerivada <- function(sig) {
+  return(sig * (1 - sig))
+}
+
 a <- sigmoid(0)
 # b <- exp(0)
 # Ainda que o valor passado à função sigmoide seja negativo, o retorno da função sigmoide não será negativo: será um
@@ -93,4 +98,29 @@ for (j in 1:epocas) {
   
   # Obtém o valor do erro médio desconsiderando-se valores negativos.
   mediaAbsoluta <- mean(abs(erroCamadaSaida))
+  
+  # Calcula a derivada para o valor da camada de saída. Observar que trata-se de uma operação envolvendo
+  # matrizes.
+  derivadaSaida <- sigmoidDerivada(camadaSaida)
+  
+  # Calcula o delta com base no erro e na derivada da camada de saída.
+  deltaSaida <- erroCamadaSaida * derivadaSaida
+  
+  # A linha abaixo resulta em erro porque as matrizes deltaSaida e pesos1 são
+  # de diferentes dimensões. Portanto, não é possível multiplicá-las diretamente.
+  # deltaSaidaXPeso <- deltaSaida %*% pesos1
+  # A solução para o problema acima é fazer a transposição de uma das matrizes.
+  # A transposição abaixo gera uma matriz de 1 linha e 3 colunas (pesos1 é uma
+  # matriz de 3 linhas e 1 coluna).
+  pesos1Transposta = t(pesos1)
+  
+  # Agora é possível realizar a multiplicação de matrizes para obtermos
+  # deltaSaidaXPeso. O resultado é uma matriz de 4 linhas e 3 colunas. As
+  # 4 linhas correspondem aos pares de neurônios da camada oculta e as 3
+  # linhas correspondem aos 3 pesos existentes entre a camada oculta e a
+  # camada de saída. Em caso de dúvida, rever slides.
+  deltaSaidaXPeso = deltaSaida %*% pesos1Transposta
+  
+  # Calcula o delta da camada oculta.
+  deltaCamadaOculta <-deltaSaidaXPeso * sigmoidDerivada(camadaOculta)
 }
