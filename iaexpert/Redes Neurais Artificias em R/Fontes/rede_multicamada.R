@@ -42,29 +42,32 @@ saidas <- data.matrix(c(0, 1, 1, 0))
 # Como a primeira camada oculta terá 3 neurônios e a primeira camada tem 2 neurônios, a matriz de pesos
 # terá 2 linhas (uma para cada neurônio da camada inicial) e 3 colunas (uma para cada neurônio da primeira
 # camada oculta).
-pesos0 <- matrix(
-  c(-0.424,-0.740,-0.961,
-    0.358,-0.577,-0.469),
-  nrow = 2,
-  ncol = 3,
-  byrow = T
-)
+
+# Criando a matriz pesos0 com valores fixos.
+# pesos0 <- matrix(c(-0.424,-0.740,-0.961,0.358,-0.577,-0.469),nrow = 2,ncol = 3, byrow = T)
+
+# Criando a matriz pesos0 com valores aleatórios
+pesos0 <- matrix(runif(6, min = -1, max = 1), nrow = 2, ncol = 3, byrow = T)
 
 # Cria a matriz dos pesos a serem utilizados com os neurônios da primeira camada oculta. 
 # Como essa camada tem 3 neurônios e a camada de saída contém apenas 1 neurônio, então a matriz terá 3 linhas e
 # apenas 1 coluna.
-pesos1 <- matrix(
-  c(-0.017,-0.893, 0.148),
-  nrow = 3,
-  ncol = 1,
-  byrow = T
-)
+
+# Criando a matriz pesos1 com valores fixos.
+# pesos1 <- matrix(c(-0.017,-0.893, 0.148), nrow = 3, ncol = 1, byrow = T)
+
+# Criando a matriz pesos1 com valores aleatórios.
+pesos1 <- matrix(runif(3, min = -1, max = 1), nrow = 3, ncol = 1, byrow = T)
 
 # Cria a variável que irá definir quantas vezes será executado o processo de ajustes dos pesos até se obter o melhor
 # resultado. Em problemas do mundo real é muito difícil chegar a uma condição em que o erro seja 0 (como foi feito no
 # exemplo do perceptron de 1 camada). Por isso, geralmente se define o número máximo de ajustes a serem realizados nos
 # pesos. O que se espera é que, dentro desse número de ajustes, chegue-se ao melhor resultado da rede neural.
-epocas <- 100
+epocas <- 1000000
+
+# Em todo o curso os cálculos foram feitos considerando-se a variável momento com valor 1
+momento <- 1
+taxaAprendizagem <- 0.1
 
 # Executa 100 vezes o processo de ajuste dos pesos
 for (j in 1:epocas) {
@@ -98,6 +101,7 @@ for (j in 1:epocas) {
   
   # Obtém o valor do erro médio desconsiderando-se valores negativos.
   mediaAbsoluta <- mean(abs(erroCamadaSaida))
+  print(paste("Erro: ", mediaAbsoluta))
   
   # Calcula a derivada para o valor da camada de saída. Observar que trata-se de uma operação envolvendo
   # matrizes.
@@ -123,4 +127,22 @@ for (j in 1:epocas) {
   
   # Calcula o delta da camada oculta.
   deltaCamadaOculta <-deltaSaidaXPeso * sigmoidDerivada(camadaOculta)
+  
+  # Faz a transposição da matriz da camada oculta. Cada coluna da matriz gerada corresponde a cada um dos
+  # registros utilizados na rede neural (os 4 registros das combinações do operador XOR). Cada coluna dessa
+  # mesma matriz corresponde a um neurônio da camada oculta.
+  camadaOcultaTransposta <- t(camadaOculta)
+  
+  pesosNovo1 <- camadaOcultaTransposta %*% deltaSaida
+  pesos1 <- (pesos1 * momento) + (pesosNovo1 * taxaAprendizagem)
+  
+  # Revisar essa parte do código acompanhando com os slides ou com a aula "Implementação rede multicamada 10".
+  # Sinceramente, já me perdi nos cálculos nesse ponto do código.
+  camadaEntradaTransposta <- t(camadaEntrada)
+  pesosNovo0 <- camadaEntradaTransposta %*% deltaCamadaOculta
+  pesos0 <- (pesos0 * momento) + (pesosNovo0 * taxaAprendizagem)
+  
+  camadaEntradaTransposta <- t(camadaEntrada)
+  pesosNovo0 <- camadaEntradaTransposta %*% deltaCamadaOculta
+  pesos0 <- (pesos0 * momento) + (pesosNovo0 * taxaAprendizagem)
 }
